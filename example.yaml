@@ -1,7 +1,7 @@
 exchange:
   okx:
     api_key: 123467890
-    secret_key: 123467890
+    secret: 123467890
 
 addresses:
   - 0x1234567890
