@@ -1,9 +1,11 @@
 import argparse
 import time
+from pprint import pprint
 
 import ccxt
 import colorama
 import yaml
+from ccxt import Exchange
 from colorama import Fore
 
 from checkpointdb import CheckPointDatabase
@@ -36,6 +38,7 @@ def create_exchange(config):
 
 
 def read_config(path):
+    print(f'{Fore.GREEN}Reading config from {path!r}')
     with open(path) as f:
         return yaml.load(f, Loader=yaml.SafeLoader)
 
@@ -44,9 +47,27 @@ def delim():
     print(Fore.BLUE + '-' * 80)
 
 
+def show_balance(exchange: Exchange):
+    delim()
+    print(f'{Fore.GREEN}Balance:')
+    balances = exchange.fetch_balance()
+
+    b_used = balances['used']
+    b_total = balances['total']
+
+    for asset, balance in b_total.items():
+        if balance == 0:
+            continue
+        used = b_used[asset]
+        print(f'{Fore.GREEN}    {asset}: {balance} (used: {used})')
+    delim()
+
+
 def main():
     args = read_arguments()
     colorama.init()
+
+    dry_run = args.dry_run
 
     config = read_config(args.config)
 
@@ -54,9 +75,9 @@ def main():
     dispatcher = Dispatcher(config['actions'], config['addresses'], db)
 
     exchange = create_exchange(config['exchange'])
-    executor = Executor(exchange)
-    # b = exchange.fetch_balance()
-    # pprint(b)
+    show_balance(exchange)
+
+    executor = Executor(exchange, dry_run)
 
     while do := dispatcher.next_action():
         address, action = do
