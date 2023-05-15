@@ -1,8 +1,16 @@
 import argparse
-from pprint import pprint
+import time
 
 import ccxt
+import colorama
 import yaml
+from colorama import Fore
+
+from checkpointdb import CheckPointDatabase
+from dispatcher import Dispatcher
+from executor import Executor
+
+SLEEP_AFTER_ERROR = 10
 
 
 def read_arguments():
@@ -14,12 +22,17 @@ def read_arguments():
 
 
 def create_exchange(config):
-    return ccxt.okx({
-        'apiKey': config['api_key'],
-        'secret': config['secret'],
-        "password": config['password'],
-        "options": {'defaultType': 'spot'},
-    })
+    for key in config.keys():
+        if key == 'okx':
+            sub_cfg = config[key]
+            return ccxt.okx({
+                'apiKey': sub_cfg['api_key'],
+                'secret': sub_cfg['secret'],
+                "password": sub_cfg['password'],
+                "options": {'defaultType': 'spot'},
+            })
+        else:
+            raise Exception(f'Unsupported exchange: {key}')
 
 
 def read_config(path):
@@ -27,14 +40,41 @@ def read_config(path):
         return yaml.load(f, Loader=yaml.SafeLoader)
 
 
+def delim():
+    print(Fore.BLUE + '-' * 80)
+
+
 def main():
     args = read_arguments()
+    colorama.init()
 
     config = read_config(args.config)
 
-    okx = create_exchange(config['exchange']['okx'])
-    b = okx.fetch_balance()
-    pprint(b)
+    db = CheckPointDatabase(config['name'])
+    dispatcher = Dispatcher(config['actions'], config['addresses'], db)
+
+    exchange = create_exchange(config['exchange'])
+    executor = Executor(exchange)
+    # b = exchange.fetch_balance()
+    # pprint(b)
+
+    while do := dispatcher.next_action():
+        address, action = do
+        amount = dispatcher.get_amount(action)
+        key = dispatcher.key(address, action)
+
+        try:
+            delim()
+            print(f'{Fore.GREEN}Processing {key} => {amount} => {address}')
+            executor.execute(address, action, amount)
+        except Exception as e:
+            print(f'{Fore.RED}Error: {e}! Sleeping...')
+            time.sleep(SLEEP_AFTER_ERROR)
+        else:
+            dispatcher.mark_as_done(address, action, amount)
+            print(f'{Fore.GREEN}Done!')
+
+    print(f'{Fore.GREEN}All done!{Fore.RESET}')
 
 
 if __name__ == '__main__':

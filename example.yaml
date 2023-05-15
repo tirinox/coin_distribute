@@ -1,19 +1,32 @@
+name: test
+
 exchange:
   okx:
-    api_key: 123467890
-    secret: 123467890
+    api_key: abc-1344434-344443
+    secret: 4434403943043484034803483480
+    password: "12345678"
 
 addresses:
-  - 0x1234567890
-  - 0x1234567890
-  - 0x1234567890
+  - "0x12345612345690aa123456784568754334876545"  # must be strings
+  - "0x12345612345690aa123456784568754334876545"
+  - "0x12345612345690aa123456784568754334876545"
 
 actions:
-  - withdraw: avax
+  - type: withdraw
+    asset: avax
     network: avax
     amount: 0.2
-  - withdraw: eth
+
+  - type: withdraw
+    asset: eth
     network: eth
     amount: random
     min: 0.1
     max: 0.2
+
+  - type: withdraw
+    asset: optimism
+    network: usdc
+    amount: random
+    min: 12
+    max: 22
