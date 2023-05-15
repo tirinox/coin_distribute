@@ -19,5 +19,5 @@ So `asset` is `AVAX` and `network` is `Avalanche C-Chain`.
    1) Fill your credentials in the `exchange` block
    2) Compile the list of addresses in the `addresses` block. Note! Each address must be surrounded by quotes ""
    3) Fill the `actions`.
-4. Run `python main.py --config 1.yaml`
+4. Run `python distribute_main.py --config 1.yaml`
 5. If you want to start over, delete the checkpoint YAML file under `db` folder. Otherwise, the script won't execute the same action twice.
