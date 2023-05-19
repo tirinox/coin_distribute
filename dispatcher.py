@@ -2,6 +2,7 @@ import random
 from datetime import datetime
 
 from checkpointdb import CheckPointDatabase
+from utils import get_asset_and_network
 
 
 class Dispatcher:
@@ -13,8 +14,7 @@ class Dispatcher:
     @staticmethod
     def key(address, action):
         act_type = action['type']
-        network = action['network']
-        asset = action['asset']
+        asset, network = get_asset_and_network(action)
         return f'{address}/{act_type}/{network}.{asset}'
 
     def mark_as_done(self, address, action, amount, result='good'):

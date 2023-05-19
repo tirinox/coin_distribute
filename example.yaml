@@ -1,10 +1,11 @@
 name: test
 
 exchange:
-  okx:
-    api_key: abc-1344434-344443
-    secret: 4434403943043484034803483480
-    password: "12345678"
+  name: okx
+  type: okx
+  api_key: abc-1344434-344443
+  secret: 4434403943043484034803483480
+  password: "12345678"
 
 addresses:
   - "0x12345612345690aa123456784568754334876545"  # must be strings
