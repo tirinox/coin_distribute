@@ -20,7 +20,7 @@ class CheckPointDatabase:
     def load(self):
         try:
             with open(self.filename) as f:
-                self._cache = yaml.load(f, Loader=yaml.SafeLoader)
+                self._cache = yaml.load(f, Loader=yaml.SafeLoader) or {}
         except FileNotFoundError:
             self._cache = {}
 
