@@ -45,7 +45,9 @@ def main():
     dispatcher = Dispatcher(config['actions'], config['addresses'], db)
 
     exchange_manager = ExchangeManager(config['exchanges'])
-    exchange_manager.show_balances()
+
+    # todo: not yet implemented correctly
+    # exchange_manager.show_balances()
 
     executor = Executor(exchange_manager, dry_run)
 
