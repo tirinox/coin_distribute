@@ -1,7 +1,16 @@
+from typing import NamedTuple
+
 import ccxt
 from colorama import Fore
 
 from utils import delim
+
+
+class OKX_Fee(NamedTuple):
+    full_chain_name: str
+    currency_name: str
+    fee: float
+    network: str
 
 
 class ExchangeManager:
@@ -58,7 +67,10 @@ class ExchangeManager:
                 'apiKey': api_key,
                 'secret': api_secret,
                 "password": password,
-                "options": {'defaultType': 'spot'},
+                "options": {
+                    'defaultType': 'spot',
+                    "password": password,
+                },
             })
         elif ex_type == 'binance':
             exchange = ccxt.binance({
@@ -105,34 +117,61 @@ class ExchangeManager:
             print(f'{Fore.GREEN}    {asset}: {balance} (used: {used})')
         delim()
 
-    def _okx_get_withdrawal_fee(self, exchange, symbol_withdraw, chain_name):
+    OKX_SUBSTITUTIONS = {
+        'CELO': 'CELO-CELO',
+    }
+
+    OKX_CUSTOM_FEE = {
+        ('CELO', 'CELO'): 0.001,
+    }
+
+    def _okx_get_withdrawal_fee(self, exchange, symbol_withdraw, chain_name) -> OKX_Fee:
         currencies = exchange.fetch_currencies()
+
+        # print(json.dumps(currencies, indent=4))
+
         for currency in currencies:
-            if currency == symbol_withdraw:
+            if currency.upper() == symbol_withdraw.upper():
                 currency_info = currencies[currency]
                 network_info = currency_info.get('networks', None)
                 if network_info:
-                    for network in network_info:
-                        network_data = network_info[network]
+                    for network_data in network_info.values():
                         network_id = network_data['network']
-                        if network_id == chain_name:
-                            withdrawal_fee = currency_info['networks'][network]['fee']
-                            chain_full_name = network_data["info"]["chain"]
-                            if withdrawal_fee == 0:
-                                return 0
+                        if network_id.upper() == chain_name.upper():
+                            withdrawal_fee = network_data['fee']
+                            precision = network_data['precision']
+                            if precision and withdrawal_fee < float(precision):
+                                withdrawal_fee = float(precision)
+
+                            # hardcoded substitutions
+                            if symbol_withdraw in self.OKX_SUBSTITUTIONS:
+                                chain_full_name = self.OKX_SUBSTITUTIONS[symbol_withdraw]
                             else:
-                                return withdrawal_fee, chain_full_name
+                                chain_full_name = network_data["info"]["chain"]
+
+                            ccy = network_data["info"]["ccy"]
+
+                            if (network_id, ccy) in self.OKX_CUSTOM_FEE:
+                                print(f'Fee for {symbol_withdraw} {chain_name} is overridden to '
+                                      f'{self.OKX_CUSTOM_FEE[(network_id, ccy)]}')
+                                withdrawal_fee = self.OKX_CUSTOM_FEE[(network_id, ccy)]
+
+                            return OKX_Fee(chain_full_name, ccy, withdrawal_fee, network_id)
         raise ValueError(f"Cannot find withdrawal fee for {symbol_withdraw} {chain_name}")
 
     def _okx_withdraw(self, okx, symbol, network, amount, address):
-        fee, chain_name = self._okx_get_withdrawal_fee(okx, symbol, network)
+        fee_data = self._okx_get_withdrawal_fee(okx, symbol, network)
+
         okx.withdraw(
             symbol, amount, address,
             params={
+                # "network": network,
+                # "fee": fee_data.fee,
+                # 'pwd': okx.options['password'],
                 "toAddress": address,
-                "chain": network,
+                "chain": fee_data.full_chain_name,
                 "dest": 4,
-                "fee": fee,
+                "fee": fee_data.fee,
                 "pwd": '-',
                 "amt": amount,
                 "network": network
