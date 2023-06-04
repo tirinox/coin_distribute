@@ -62,8 +62,8 @@ Symbol: ASTR | Network: Astar | Withdrawal fee: 0.0
 Symbol: ATOM | Network: Cosmos | Withdrawal fee: 0.004
 Symbol: AUCTION | Network: ERC20 | Withdrawal fee: 0.76474874
 Symbol: AUCTION | Network: AUCTIONK-OKTC | Withdrawal fee: 0.0
-Symbol: AVAX | Network: Avalanche X-Chain | Withdrawal fee: 0.008
-Symbol: AVAX | Network: Avalanche C-Chain | Withdrawal fee: 0.0064
+Symbol: AVAX | Network: Avalanche X | Withdrawal fee: 0.008
+Symbol: AVAX | Network: Avalanche C | Withdrawal fee: 0.0064
 Symbol: AXS | Network: ERC20 | Withdrawal fee: 0.52831107
 Symbol: AZY | Network: BSC | Withdrawal fee: 1.0
 Symbol: BABYDOGE | Network: OKTC | Withdrawal fee: 0.0
