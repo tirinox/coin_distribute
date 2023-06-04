@@ -8,8 +8,8 @@ Exchanges supported:
 
 You can get the asset and network names from the text file in the "exchanges" folder.
 For example, for AVAX on OKX, open exchanges/okx.txt and use Ctrl+F to find the following line:
-```Symbol: AVAX | Network: Avalanche C-Chain | Withdrawal fee: 0.0064```
-So `asset` is `AVAX` and `network` is `Avalanche C-Chain`.
+```Symbol: AVAX | Network: Avalanche C | Withdrawal fee: 0.0064```
+So `asset` is `AVAX` and `network` is `Avalanche C`.
 
 ## Installation
 
@@ -20,4 +20,12 @@ So `asset` is `AVAX` and `network` is `Avalanche C-Chain`.
    2) Compile the list of addresses in the `addresses` block. Note! Each address must be surrounded by quotes ""
    3) Fill the `actions`.
 4. Run `python distribute_main.py --config 1.yaml`
-5. If you want to start over, delete the checkpoint YAML file under `db` folder. Otherwise, the script won't execute the same action twice.
+
+## Plans and checkpoints
+
+By default, the script saves every succeeded action to the checkpoint file for every address and asset.
+So it won't execute the same action next time in case of script stop or failure.
+If you want to start over, delete the checkpoint YAML file under `db` folder. 
+Otherwise, the script won't execute the same action twice.
+
+If you want to disable this behavior, simply add `-P` or `--planless` flag to the command line.

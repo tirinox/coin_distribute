@@ -4,7 +4,7 @@ import time
 import yaml
 from colorama import Fore
 
-from checkpointdb import CheckPointDatabase
+from checkpointdb import CheckPointDatabase, CheckPointDatabaseMemory
 from dispatcher import Dispatcher
 from exchanges import ExchangeManager
 from executor import Executor
@@ -17,6 +17,8 @@ def read_arguments():
     arg_parser = argparse.ArgumentParser(description='Distribute coins')
     arg_parser.add_argument('-c', '--config', type=str, default='config.yaml', help='config file; see example.yaml')
     arg_parser.add_argument('--debug', action='store_true', help='debug mode')
+    arg_parser.add_argument('-P', '--planless', action='store_true',
+                            help='Do not plan actions, just execute them. (No checkpoint files)')
     arg_parser.add_argument('-d', '--dry-run', action='store_true', help='dry run mode')
     return arg_parser.parse_args()
 
@@ -41,7 +43,12 @@ def main():
     if not name:
         raise Exception('No name in config and no filename')
 
-    db = CheckPointDatabase(name)
+    if args.planless:
+        print(f'{Fore.YELLOW}Attention! Planless mode is active!{Fore.RESET}')
+        db = CheckPointDatabaseMemory(name)
+    else:
+        db = CheckPointDatabase(name)
+
     dispatcher = Dispatcher(config['actions'], config['addresses'], db)
 
     exchange_manager = ExchangeManager(config['exchanges'])

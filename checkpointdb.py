@@ -34,3 +34,14 @@ class CheckPointDatabase:
 
     def get_checkpoint(self, key):
         return self._cache.get(key)
+
+
+class CheckPointDatabaseMemory(CheckPointDatabase):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def load(self):
+        self._cache = {}
+
+    def save(self):
+        pass
