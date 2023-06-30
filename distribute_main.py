@@ -16,6 +16,7 @@ SLEEP_AFTER_ERROR = 10
 def read_arguments():
     arg_parser = argparse.ArgumentParser(description='Distribute coins')
     arg_parser.add_argument('-c', '--config', type=str, default='config.yaml', help='config file; see example.yaml')
+    arg_parser.add_argument('-r', '--round', type=int, default=3, help='Number of decimal places for rounding')
     arg_parser.add_argument('--debug', action='store_true', help='debug mode')
     arg_parser.add_argument('-P', '--planless', action='store_true',
                             help='Do not plan actions, just execute them. (No checkpoint files)')

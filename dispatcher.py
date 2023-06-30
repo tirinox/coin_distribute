@@ -37,13 +37,16 @@ class Dispatcher:
             for action in self.actions:
                 yield address, action
 
-    @staticmethod
-    def get_amount(action):
+    def get_amount(self, action):
         amount = action['amount']
         if amount == 'random':
             min_amount = float(action['min'])
             max_amount = float(action['max'])
-            return random.uniform(min_amount, max_amount)
+
+            r = random.uniform(min_amount, max_amount)
+
+            round_decimals = action.get('round', 3)
+            return round(r, round_decimals)
         else:
             return float(amount)
 

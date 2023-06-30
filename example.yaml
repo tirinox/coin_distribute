@@ -31,3 +31,4 @@ actions:
     amount: random
     min: 12
     max: 22
+    round: 1  # override round to 1 decimal place, buy default it's 3
